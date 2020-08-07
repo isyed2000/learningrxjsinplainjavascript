@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/rxjs/6.5.2/rxjs.umd.js"></script>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+  </head>
+  <body>
+    <div class="container">
+	
+	<p><a href="Multiobserverexample.html">Multi observer example</p>
+	
+	<p><a href="UnsubscribeDemo.html">Unsubscribe from Observable Demo</p>
+	
+	
+	<p><a href="UsingMapOperators.html">Map Operators examples</p>
+	
+    <div class="panel panel-default">
+    <div class="panel-heading">Demo of an observable created on an array in memory data element using the of operator.  Notice the whole array is treated as one data element. (next function is called only once)<br/>
+	<input type="button" onclick="RunDemoUsingOfOperator('div1')" value="Run Demo where observable is created using the Of operator/function" /></div>
+    <div class="panel-body" id="div1"></div>
+	</div>
+  	
+	<div class="panel panel-default">
+	 <div class="panel-heading">Demo of an observable created using from operator.</div>
+	<input type="button" onclick="RunDemoUsingfromOperator('div3')" value="Run Demo where observable is created using the from operator/function" />
+	</div>
+	<div class="panel-body" id="div3"></div>
+	</div>
+	
+	
+	<h1>Demo of an observable created using the observable constructor.</h1>
+	<input type="button" onclick="RunDemoUsingObservableConstructor('div2')" value="Run Demo where observable is created using the constructor." />
+	
+	<div id="div2"></div>
+	</div>
+	
+	
+	<div>
+	<h1>Demo of an observable created using concat.  Concat combines two observable..</h1>
+	<input type="button" onclick="RunDemoUsingConcatOperator('div4')" value="Run" />
+	
+	<div id="div4"></div>
+	</div>
+	
+	<div>
+	<h1>Demo of an observable which is created from button click event using fromEvent method of rxjs</h1>
+	<input type="button" onclick="SubscribeToButotnClickEvent('btnPrintContacts','div5')" value="Click Me to attach observer to button click event" /> <input type="button" value="Click This To Print" id="btnPrintContacts" />
+	
+	<div id="div5"></div>
+	</div>
+	
+	<div>
+	<h1>Demo of an observable using rxjs ajax call.</h1>
+	<input type="button" onclick="GetRemoteDataUsingRxJsAjax('btnGetData','div6')" id="btnGetData" value="Get Data from Server using rxjs" /> 
+	
+	<div id="div6"></div>
+	</div>
+	
+	<div>
+	<h1>Demo of an observable using xmlhttp with rxjs observable.</h1>
+	<input type="button" onclick="GetRemoteDataUsingXmlHttp('btnGetDataxmlHttp','div7')" id="btnGetDataxmlHttp" value="Get Data from Server using xmlhttp and rxjs observable" /> 
+	
+	<div id="div7"></div>
+	</div>
+	</div>
+  </body>
+
+
+<script type="module">
+import foo from './GreeterModule.js';
+
+foo();
+
+console.log(typeof rxjs);
+const { Observable, from, of, concat, fromEvent} = rxjs; //object structure syntax.  Observable and stuff are functions.
+const networkClient = rxjs.ajax.ajax; //mapping rxjs.ajax.ajax to networkClient
+
+var a = new Observable();
+console.log(rxjs);
+console.log(typeof rxjs.Observable);
+console.log(typeof Observable);
+console.log(typeof rxjs.ajax);
+
+
+var data = [{Name:"Iftikhar Ali"}, {Name:"Asma Naweed"}];
+
+function GetContactObservableUsingOf(){
+return of(data); //next method will be called once for the whole array.  See 'from' to call next method mutiple times.
+}
+
+function GetContactFromObservableUsingFrom(){
+
+return from(data);
+}
+
+function GetBasicArrayAsObservable(){
+return of('hello', 10, 'some value');//next method will be called one by one for each element.
+}
+document.RunDemoUsingOfOperator = RunDemoUsingOfOperator; //Doing this because the method is not available outside the module. Script type is module..
+document.RunDemoUsingObservableConstructor = RunDemoUsingObservableConstructor;
+document.RunDemoUsingfromOperator = RunDemoUsingfromOperator;
+document.RunDemoUsingConcatOperator = RunDemoUsingConcatOperator;
+document.SubscribeToButotnClickEvent = SubscribeToButotnClickEvent;
+document.GetRemoteDataUsingRxJsAjax = GetRemoteDataUsingRxJsAjax;
+document.GetRemoteDataUsingXmlHttp = GetRemoteDataUsingXmlHttp
+function RunDemoUsingfromOperator(div)
+{
+var dataObservable = GetContactFromObservableUsingFrom();
+console.log("Type of dataObservable " + typeof dataObservable);
+var divElement = document.getElementById(div);
+dataObservable.subscribe({
+next(contact){console.log('next function called ' + contact.length + " " + JSON.stringify(contact)); divElement.innerText += JSON.stringify(contact)},
+complete(){console.log('Observer completed');}
+});
+}
+
+function RunDemoUsingConcatOperator(div)
+{
+var dataObservable = concat(GetContactFromObservableUsingFrom(), GetContactObservableUsingOf() , of("1", "2", "3"));
+
+console.log("Type of dataObservable " + typeof dataObservable);
+var divElement = document.getElementById(div);
+dataObservable.subscribe({
+next(contact){console.log('next function called ' + contact.length + " " + JSON.stringify(contact)); divElement.innerText += JSON.stringify(contact)},
+complete(){console.log('Observer completed');}
+});
+}
+
+function SubscribeToButotnClickEvent(btn, div)
+{
+console.log(btn);
+  var eventQueue = fromEvent(document.getElementById(btn), 'click');
+  console.log('here');
+  
+  var items = [{Name:"Yunus Syed"}, {Name:"Hafsa Syed"}];
+  
+  eventQueue.subscribe(event=>{
+  console.log(event);
+    for(var i=0;i<items.length;i++){
+  
+  document.getElementById(div).innerHTML += items[i].Name + "<br/>";
+  }
+
+  });
+
+}
+
+function RunDemoUsingObservableConstructor(div){
+var divElement = document.getElementById(div);
+var observable = new Observable(subscriber=>{ 
+var i=5;
+for(let i=0;i<data.length;i++)//using let instead of var to give i a local scope.  Otherwise, the i above will be changed. Just a scoping demo here.
+{
+   console.log("in observer Loop");
+   
+   if(data[i].Name=="Cause Error"){
+   //subscriber.error('Name with Cause Error found');//This will unsuscribe the next method and the complete method.
+   }
+   subscriber.next(data[i]);//The values will be emitted one by one.
+
+}
+
+//Giving a feel of async operation.
+setTimeout(()=>{
+console.log('calling complete from subscriber');
+subscriber.complete();},2000);  //Note: Tear down will be called after complete.  If error occurs, the compelete will not get called.
+
+
+return ()=>{console.log('Tear down')}; //release any resources here.  The tear down will always get called.
+});
+
+console.log("About to subscribe");
+observable.subscribe({
+next(contact){console.log('next function called ' + contact.length + " " + JSON.stringify(contact)); divElement.innerText = JSON.stringify(contact)},
+complete(){console.log('Observer completed');},
+error(msg){console.log("Error encountered. " + msg)}
+});
+
+
+}
+
+function RunDemoUsingOfOperator(div)
+{
+var dataObservable = GetContactObservableUsingOf();
+console.log("Type of dataObservable " + typeof dataObservable);
+var divElement = document.getElementById(div);
+dataObservable.subscribe({
+next(contact){console.log('next function called ' + contact.length + " " + JSON.stringify(contact)); divElement.innerText = JSON.stringify(contact)},
+complete(){console.log('Observer completed');}
+});
+
+}
+var eventQueue = null;
+function GetRemoteDataUsingRxJsAjax(btn, div)
+{
+console.log(btn);
+  if(eventQueue==null) //Only want to subscribe one time.
+   {
+   eventQueue = fromEvent(document.getElementById(btn), 'click');
+   
+    
+  eventQueue.subscribe(event=>{
+  console.log(event);
+  
+  networkClient("https://putsreq.com/3C9N49CH3qdKU9PZCYzi").subscribe(ajaxResponse=>{
+     console.log('Ajax Response');
+     console.log(ajaxResponse);
+	 document.getElementById(div).innerHTML = "Data loaded from https://putsreq.com/3C9N49CH3qdKU9PZCYzi" + "<br/>";
+	 for(var i=0;i<ajaxResponse.response.length;i++){
+  
+  document.getElementById(div).innerHTML += ajaxResponse.response[i].Name + "<br/>";
+  }
+  
+	 
+  });
+    
+  });
+  
+  document.getElementById(btn).click();
+  }
+  
+  
+
+}
+
+function GetRemoteDataUsingXmlHttp(btn, div)
+{
+console.log(btn);
+  if(eventQueue==null) //Only want to subscribe one time.
+   {
+   eventQueue = fromEvent(document.getElementById(btn), 'click');
+   
+    
+  eventQueue.subscribe(event=>{
+  console.log(event);
+  
+  //
+  //
+  GetListUsingXmlHttp("https://putsreq.com/3C9N49CH3qdKU9PZCYzi").subscribe({
+   
+   next:function(ajaxResponse){
+     console.log('Response received from xmlhttp observable.');
+     console.log(ajaxResponse);
+	 } ,
+	 complete(){console.log('completed called');},
+	 error(msg){console.log('Error returned ' + msg);}
+	 });
+	 
+  //
+   });
+  document.getElementById(btn).click();
+  }
+
+}
+
+function GetListUsingXmlHttp(url)
+{
+   var xhttp = new XMLHttpRequest();
+   
+		var observable = new Observable(subscriber =>
+		{
+		
+		 console.log('preparing to call xmlhttp');
+		 
+		 var promise = new Promise((resolve,reject)=>{
+            
+        xhttp.onreadystatechange = function() {
+
+            if(xhttp.readyState!=4) return;
+
+          if (this.readyState == 4 && this.status == 200) {
+              console.log("onreadystatechange");
+            //resolve(this.responseText);
+			
+			subscriber.next(this.responseText);
+			subscriber.complete();//will cause the teardown.
+			
+          }
+          else{
+            if(reject!=null){
+                //reject({status:xhttp.status, statusText:xhttp.statusText});
+				subscriber.error({status:xhttp.status, statusText:xhttp.statusText});
+            }
+          }
+        };
+		
+		console.log("The promise is executing");
+        xhttp.open("GET", url, true);
+        xhttp.send();
+
+        });
+		
+		  
+		  return ()=>{console.log("Tear down of the observable")};
+		
+		});
+		
+		return observable;
+
+}
+
+</script>
+
+
+<!--Just create a separate js for page javascript-->
+<script>
+
+</script>
+
+  
+</html>

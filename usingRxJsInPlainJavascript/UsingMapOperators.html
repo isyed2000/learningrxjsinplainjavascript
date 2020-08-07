@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/rxjs/6.5.2/rxjs.umd.js"></script>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+  </head>
+  <body>
+    <div class="container">
+	<h1>Learning rxjs Map Operators.</h1>
+	Map functions transforms data from observable into a transformed value.
+    <div class="panel panel-default">
+    <div class="panel-heading">Multiply by 2 Map Operator example with filter operator.  Only values > 10 displayed</div>
+	
+    <div class="panel-body" >
+	
+	<div id="div1" />
+	</div>
+	</div>
+  		<br/>
+<div>
+		
+	</div>
+	
+	    
+	</div>
+		
+  </body>
+
+
+<script type="module">
+const { Observable, from, of, concat, fromEvent, interval, operators} = rxjs; //object structure syntax.  Observable and stuff are functions.
+
+const {map, filter} = operators;
+var numberProducer = new Observable(subscriber =>{
+
+for(var i=0;i<20;i++)
+{ subscriber.next(i);
+}
+  
+  
+  return ()=>{console.log("Cleaning up resources"); 
+  
+  }; 
+  
+  
+});
+
+
+//step by step syntax.
+var multipleByTwoMap = map(value=>{return value*2}); //this a map function.
+var filterOperator = filter(mappedValue=>{return mappedValue > 10;});
+var transformObservable = multipleByTwoMap(numberProducer);
+var filterValueObservable = filterOperator(transformObservable);
+var subscription = filterValueObservable.subscribe(val=>{document.getElementById("div1").innerHTML +=  val + "<br/>"});
+
+//compact syntax.
+//numberProducer.pipe(map(value=>value*2), filter(mappedValue=>mappedValue>10)).subscribe(val=>{document.getElementById("div1").innerHTML +=  val + "<br/>"});
+
+</script>
+
+
+<!--Just create a separate js for page javascript-->
+<script>
+
+</script>
+
+  
+</html>
